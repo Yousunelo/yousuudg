@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Footballers Table</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<style>
+		/* Fondo general */
+		body {
+			background-color: #e8f0fe; /* Azul tenue */
+			color: #212529;
+		}
+
+		/* Estilo del formulario */
+		#footballerForm {
+			background-color: #ffffff;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+			max-width: 600px;
+			margin: auto;
+		}
+
+		/* Estilo del botón */
+		button {
+			background-color: #004080; /* Azul oscuro */
+			color: #ffffff;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			transition: all 0.3s ease-in-out;
+		}
+
+		button:hover {
+			background-color: #0056b3; /* Azul más vibrante */
+		}
+
+		/* Tabla */
+		#footballersTable {
+			margin-top: 30px;
+			background-color: #ffffff;
+			border-radius: 10px;
+			overflow: hidden;
+			box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		#footballersTable th {
+			background-color: #004080; /* Azul oscuro */
+			color: #ffffff;
+		}
+
+		#footballersTable tbody tr:nth-child(even) {
+			background-color: #f0f4ff; /* Azul tenue */
+		}
+
+		#footballersTable tbody tr:nth-child(odd) {
+			background-color: #ffffff; /* Blanco */
+		}
+
+		/* Títulos */
+		h1 {
+			text-align: center;
+			color: #004080; /* Azul oscuro */
+			margin-top: 20px;
+			font-weight: bold;
+		}
+
+		/* Etiquetas del formulario */
+		label {
+			color: #004080; /* Azul oscuro */
+			font-weight: bold;
+		}
+	</style>
+</head>
+
+<body>
+<h1>Footballers Management</h1>
+
+<!-- Formulario -->
+<form id="footballerForm">
+	<div class="mb-3 mt-3">
+		<label for="registrationNum">Registration Number:</label>
+		<input type="text" class="form-control" id="registrationNum" placeholder="Enter registration number" name="registrationNum">
+	</div>
+	<div class="mb-3 mt-3">
+		<label for="name">Name:</label>
+		<input type="text" class="form-control" id="name" placeholder="Enter name" name="name">
+	</div>
+	<div class="mb-3 mt-3">
+		<label for="team">Team:</label>
+		<input type="text" class="form-control" id="team" placeholder="Enter team" name="team">
+	</div>
+	<div class="mb-3 mt-3">
+		<label for="position">Position:</label>
+		<input type="text" class="form-control" id="position" placeholder="Enter position" name="position">
+	</div>
+	<div class="mb-3 mt-3">
+		<label for="age">Age:</label>
+		<input type="number" class="form-control" id="age" placeholder="Enter age" name="age">
+	</div>
+	<button type="submit" class="btn btn-dark">Submit</button>
+</form>
+
+<!-- Tabla -->
+<div class="container">
+	<table class="table table-hover" id="footballersTable">
+		<thead>
+		<tr>
+			<th>ID</th>
+			<th>Registration Number</th>
+			<th>Name</th>
+			<th>Team</th>
+			<th>Position</th>
+			<th>Age</th>
+			<th>Options</th>
+		</tr>
+		</thead>
+		<tbody>
+		<!-- Los datos se llenarán aquí -->
+		</tbody>
+	</table>
+</div>
+</body>
+
+</html>
+
+
+<script>
+	// URL de la API
+	const apiURL = 'http://3.142.135.235:8080/footballer';
+
+	// Función para cargar los datos desde la API y llenar la tabla
+	async function loadFootballers() {
+		try {
+			const response = await fetch(apiURL);
+			const footballers = await response.json();
+
+			// Seleccionamos el cuerpo de la tabla (tbody)
+			const tableBody = document.querySelector('#footballersTable tbody');
+
+			// Iteramos sobre los futbolistas recibidos de la API
+			footballers.forEach(footballer => {
+				const row = document.createElement('tr');
+				const idCell = document.createElement('td')
+				const registrationNumCell = document.createElement('td')
+				const nameCell = document.createElement('td')
+				const teamCell = document.createElement('td')
+				const positionCell = document.createElement('td')
+				const ageCell = document.createElement('td')
+				const optionsCell = document.createElement('td')
+				const deleteButton = document.createElement('button')
+				const updateButton = document.createElement('button')
+
+				// Designar el ID a la fila, botones y a cada celda
+				row.id = "row" + footballer.registrationNum
+				idCell.id = "id" + footballer.registrationNum
+				registrationNumCell.id = "registrationNum" + footballer.registrationNum
+				nameCell.id = "name" + footballer.registrationNum
+				teamCell.id = "team" + footballer.registrationNum
+				positionCell.id = "position" + footballer.registrationNum
+				ageCell.id = "age" + footballer.registrationNum
+				deleteButton.id = "delete" + footballer.registrationNum
+				updateButton.id = "update" + footballer.registrationNum
+
+				// Obtener los datos del futbolista y colocarlos en las celdas
+				idCell.textContent = footballer.id
+				registrationNumCell.textContent = footballer.registrationNum
+				nameCell.textContent = footballer.name
+				teamCell.textContent = footballer.team
+				positionCell.textContent = footballer.position
+				ageCell.textContent = footballer.age
+
+				// Configurar los botones
+				deleteButton.textContent = 'delete'
+				deleteButton.addEventListener('click', () => deleteFootballer(footballer.registrationNum))
+				deleteButton.className='btn btn-danger btn-sm'
+				updateButton.textContent = 'edit'
+				updateButton.addEventListener('click', () => updateFootballer(footballer.registrationNum))
+				updateButton.className='btn btn-warning btn-sm'
+
+				// Añadir cada elemento a la tabla
+				row.appendChild(idCell)
+				row.appendChild(registrationNumCell)
+				row.appendChild(nameCell)
+				row.appendChild(teamCell)
+				row.appendChild(positionCell)
+				row.appendChild(ageCell)
+				optionsCell.appendChild(deleteButton)
+				optionsCell.appendChild(updateButton)
+				row.appendChild(optionsCell)
+
+				// Añadir la fila a la tabla
+				tableBody.appendChild(row);
+			});
+		} catch (error) {
+			console.error('Error al cargar los datos:', error);
+		}
+	}
+
+	// Función para eliminar un futbolista
+	async function deleteFootballer(registrationNum) {
+		const deleteURL = `${apiURL}/deleteByRegistrationNum=${registrationNum}`;
+
+		try {
+			const response = await fetch(deleteURL, {
+				method: 'DELETE'
+			});
+
+			if (response.ok) {
+				alert(`Futbolista con registro ${registrationNum} eliminado.`);
+				// Recargar la lista de futbolistas después de eliminar
+				document.querySelector('#footballersTable tbody').innerHTML = ''; // Limpia la tabla
+				await loadFootballers(); // Vuelve a cargar los futbolistas
+			} else {
+				alert('No se pudo eliminar el futbolista.');
+			}
+		} catch (error) {
+			console.error('Error al intentar eliminar el futbolista:', error);
+		}
+	}
+
+	async function updateFootballer(registrationNum) {
+		// Obtener la referencia a la fila y celdas que se van a editar
+		editRow = document.getElementById("row"+registrationNum)
+		const idCell = document.getElementById("id"+registrationNum);
+		const registrationNumCell = document.getElementById("registrationNum"+registrationNum);
+		const nameCell = document.getElementById("name"+registrationNum);
+		const teamCell = document.getElementById("team"+registrationNum);
+		const positionCell = document.getElementById("position"+registrationNum);
+		const ageCell = document.getElementById("age"+registrationNum);
+		const updateButton = document.getElementById("update"+registrationNum);
+
+		// Enfocar a la fila que se edita
+		editRow.className="table table-striped"
+
+		// Establecer como editables las celdas de la fila
+		registrationNumCell.setAttribute('contenteditable', true)
+		nameCell.setAttribute('contenteditable', true)
+		teamCell.setAttribute('contenteditable', true)
+		positionCell.setAttribute('contenteditable', true)
+		ageCell.setAttribute('contenteditable', true)
+
+		if(updateButton.textContent === "Save") {
+			saveFootballerUpdated(idCell.innerHTML, registrationNum, registrationNumCell.innerHTML, nameCell.innerHTML, teamCell.innerHTML, positionCell.innerHTML,ageCell.innerHTML);
+		}
+
+		updateButton.textContent = "Save";
+		updateButton.className = "btn btn-primary";
+		registrationNumCell.focus();
+	}
+
+	async function saveFootballerUpdated(footballerId, previousRegistrationNum, updatedRegistrationNum, updatedName, updatedTeam, updatedPosition, updatedAge){
+		const updateUrl = `${apiURL}/updateByRegistrationNum=${previousRegistrationNum}`;
+
+		// Datos del futbolista
+		const footballer = {
+			id : footballerId,
+			registrationNum : updatedRegistrationNum,
+			name : updatedName,
+			team : updatedTeam,
+			position : updatedPosition,
+			age : updatedAge
+		}
+		try{
+			const response = await fetch(updateUrl, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(footballer)
+			});
+
+			if (response.ok) {
+				alert('Futbolista actualizado con éxito');
+				document.querySelector('#footballersTable tbody').innerHTML = ''; // Limpia la tabla
+				await loadFootballers(); // Recarga la tabla con los futbolistas actualizados
+			} else {
+				console.error('Error al actualizar el futbolista:', response.status);
+				alert('Codigo repetido, intenta con otro.');
+			}
+		}
+		catch(error){
+			console.error('Error de conexión al actualizar:', error);
+		}
+	}
+
+	// Escucha del botón del formulario
+	document.getElementById("footballerForm").addEventListener("submit", addFootballersFromForm)
+
+	// Funcion para agregar un futbolista desde el formulario
+	async function addFootballersFromForm(event){
+		event.preventDefault();
+		var registrationNumValue=document.getElementById("registrationNum").value;
+		var nameValue=document.getElementById("name").value;
+		var teamValue=document.getElementById("team").value;
+		var positionValue=document.getElementById("position").value;
+		var ageValue=document.getElementById("age").value;
+
+		var registrationNumValue = document.getElementById("registrationNum").value.trim();
+		var nameValue = document.getElementById("name").value.trim();
+		var teamValue = document.getElementById("team").value.trim();
+		var positionValue = document.getElementById("position").value.trim();
+		var ageValue = document.getElementById("age").value.trim();
+
+		// Validación de campos vacíos
+		if (!registrationNumValue || !nameValue || !teamValue || !positionValue || !ageValue) {
+			alert("Todos los campos son obligatorios. Por favor, completa todos los campos.");
+			return; // Detiene la ejecución si algún campo está vacío
+		}
+
+		try {
+			const response = await fetch(apiURL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json' // Indicamos que el cuerpo es JSON
+				},
+				body: JSON.stringify({ registrationNum: registrationNumValue,
+					name: nameValue,
+					team: teamValue,
+					position: positionValue,
+					age: ageValue})
+			});
+
+			if (response.ok) {
+				alert('Futbolista agregado con éxito');
+				document.querySelector('#footballersTable tbody').innerHTML = ''; // Limpia la tabla
+				await loadFootballers(); // Vuelve a cargar los futbolistas
+				document.querySelector("#footballerForm").reset();
+			} else {
+				console.error('Error al agregar el futbolista: ', response.status);
+				alert('Codigo repetido, intenta con otro.');
+			}
+		} catch (error) {
+			console.error('Error de conexión:', error);
+		}
+	}
+
+	// LLamada a la función para cargar los futboolistas mientras se carga la página
+	window.onload = loadFootballers;
+</script>
+</body>
+
+</html>
